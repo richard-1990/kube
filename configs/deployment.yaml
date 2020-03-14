@@ -9,9 +9,6 @@ spec:
     matchLabels:
       run: express-application
   strategy:
-    rollingUpdate:
-      maxSurge: 25%
-      maxUnavailable: 25%
     type: RollingUpdate
   template:
     metadata:
@@ -20,8 +17,11 @@ spec:
         run: express-application
     spec:
       containers:
-        - image: express-app:edea8ffec1c6
-          imagePullPolicy: Never
+        - image: tsakar/express-app:latest
+          # local development
+          # - image: express-app:latest
+          #   imagePullPolicy: Never
+
           name: express-application
           resources:
             requests:

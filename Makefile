@@ -1,9 +1,14 @@
 IMAGENAME=express-app
-VERSION=eval$(git rev-parse HEAD)
+DOCKERHUB=tsakar
+VERSION:= $(shell git rev-parse --short HEAD)
 
 
 docker-build:
-	docker build --tag $(IMAGENAME) .
+	docker build -t $(IMAGENAME):$(VERSION) -t $(IMAGENAME):latest .
+
+docker-push:
+	docker build -t $(DOCKERHUB)/$(IMAGENAME):latest .
+	docker push $(DOCKERHUB)/$(IMAGENAME):latest
 
 docker-images:
 	docker images
@@ -16,12 +21,12 @@ docker-run:
 
 deploy:
 	eval $(minikube docker-env)
-	docker build -t $(IMAGENAME):0.0.1 .
-	kubectl run express-application --image=$(IMAGENAME):latest --image-pull-policy=Never
+	docker build -t $(IMAGENAME):$(VERSION) -t $(IMAGENAME):latest .
+	kubectl run express-application --image=$(IMAGENAME):$(VERSION) --image-pull-policy=Never
 
 build:
 	eval $(minikube docker-env)
-	docker build -t $(IMAGENAME):latest .
+	docker build -t $(IMAGENAME):$(VERSION) -t $(IMAGENAME):latest .
 
 version:
 	echo $(VERSION)
