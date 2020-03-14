@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: express-application
-  namespace: default
+  namespace: development
 spec:
   replicas: 1
   selector:
@@ -12,7 +12,6 @@ spec:
     type: RollingUpdate
   template:
     metadata:
-      creationTimestamp: null
       labels:
         run: express-application
     spec:
@@ -30,12 +29,12 @@ spec:
             - name: MYSQL_USER
               valueFrom:
                 secretKeyRef:
-                  name: mysql-secret
+                  name: database
                   key: MYSQL_USER
             - name: MYSQL_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: mysql-secret
+                  name: database
                   key: MYSQL_PASSWORD
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File

@@ -4,7 +4,7 @@ metadata:
   labels:
     run: express-application
   name: express-application
-  namespace: default
+  namespace: development
 spec:
   externalTrafficPolicy: Cluster
   ports:
