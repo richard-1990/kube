@@ -8,9 +8,7 @@ metadata:
 spec:
   externalTrafficPolicy: Cluster
   ports:
-    - nodePort: 32492
-      port: 9000
-      protocol: TCP
+    - port: 9000
       targetPort: 9000
   selector:
     run: express-application
