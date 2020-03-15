@@ -1,10 +1,9 @@
 name: Docker registry
 
-on: 
-   push:
-     tags:
-       - 'v*'
-
+on:
+  push:
+    branches: [ master ]
+    
 jobs:
   github:
     runs-on: ubuntu-latest    
