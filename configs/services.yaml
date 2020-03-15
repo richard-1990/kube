@@ -1,18 +1,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-  labels:
-    run: express-application
-  name: express-application
+  name: express-service
   namespace: development
 spec:
-  externalTrafficPolicy: Cluster
   ports:
-    - port: 9000
+    - port: 80
       targetPort: 9000
   selector:
-    run: express-application
-  sessionAffinity: None
-  type: LoadBalancer
-status:
-  loadBalancer: {}
+    app: express-application
