@@ -2,7 +2,7 @@ name: Docker registry
 
 on:
   push:
-    branches: [master]
+    branches: [feature/github-actions]
 
 jobs:
   github:
