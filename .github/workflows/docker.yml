@@ -11,18 +11,9 @@ jobs:
       - uses: actions/checkout@v1
 
       - name: Login to github registry
-        uses: actions-hub/docker/login@master
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-          DOCKER_REGISTRY_URL: docker.pkg.github.com
-
-      - name: Build :tag
-        if: success()
-        run: docker build -t tsakar/express-app:${IMAGE_TAG} .
-
-      - name: Push to docker hub :tag
-        if: success()
-        uses: actions-hub/docker@master
+        uses: mr-smithers-excellent/docker-build-push@v2
         with:
-          args: push tsakar/express-app:${IMAGE_TAG}
+          image: tsakar/express-app
+          registry: docker.io
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
