@@ -9,7 +9,7 @@ VERSION:= $(shell git rev-parse --short HEAD)
 deploy:  
 	eval $(minikube docker-env)
 	docker build -t $(IMAGENAME):$(VERSION) -t $(IMAGENAME):latest .
-	kubectl run express-application --image=$(IMAGENAME):$(VERSION) --image-pull-policy=Never
+	kubectl run express-application --image=$(IMAGENAME):latest --image-pull-policy=Never
 
 build: 
 	eval $(minikube docker-env)
@@ -34,7 +34,7 @@ docker-images:
 docker-containers:
 	docker ps -a
 
-master-up:
+master-minikube-up:
 	minikube start
 	minikube addons enable ingress
 	kubectl apply -f configs/namespace.yaml 
@@ -43,11 +43,26 @@ master-up:
 	kubectl apply -f configs/deployment.yaml 
 	kubectl apply -f configs/services.yaml 
 	kubectl apply -f configs/ingress.yaml 
-	kubectl get ingress --watch
+	kubectl get ingress
 
-master-down:
+rollout:
+	kubectl rollout restart deployments/express-application 
+
+master-minikube-down:
 	minikube delete
 
+kubernetes-up:
+	kubectl apply -f configs/namespace.yaml 
+	kubectl config set-context --current --namespace=development
+	kubectl create secret generic -n development database --from-literal=MYSQL_USER=$(MYSQL_USER) --from-literal=MYSQL_PASSWORD=$(MYSQL_PASSWORD)
+	kubectl apply -f configs/deployment.yaml 
+	kubectl apply -f configs/services.yaml 
+	kubectl apply -f configs/nginx-ingress.yaml 
+	kubectl get ingress
+
+
+secrets:
+	kubectl create secret generic -n development database --from-literal=MYSQL_USER=$(MYSQL_USER) --from-literal=MYSQL_PASSWORD=$(MYSQL_PASSWORD)
 
 
 version:
