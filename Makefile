@@ -39,7 +39,7 @@ master-minikube-up:
 	minikube addons enable ingress
 	kubectl apply -f configs/namespace.yaml 
 	kubectl config set-context --current --namespace=development
-	kubectl create secret generic -n development database --from-literal=username=$(MYSQL_USER) --from-literal=password=$(MYSQL_PASSWORD)
+	kubectl create secret generic -n development database --from-literal=MYSQL_USER=$(MYSQL_USER) --from-literal=MYSQL_PASSWORD=$(MYSQL_PASSWORD)
 	kubectl apply -f configs/deployment.yaml 
 	kubectl apply -f configs/services.yaml 
 	kubectl apply -f configs/ingress.yaml 
