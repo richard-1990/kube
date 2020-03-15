@@ -11,7 +11,6 @@ jobs:
       SHA8: ${GITHUB_SHA::8}
     steps:
       - uses: actions/checkout@v1
-        run: echo $SHA8
 
       - name: build
         run: docker build . -t tsakar/express-app:$SHA8 -t tsakar/express-app:latest
