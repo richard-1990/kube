@@ -2,11 +2,11 @@ name: Docker registry
 
 on:
   push:
-    branches: [ master ]
-    
+    branches: [master]
+
 jobs:
   github:
-    runs-on: ubuntu-latest    
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
 
@@ -19,10 +19,10 @@ jobs:
 
       - name: Build :tag
         if: success()
-        run: docker build -t docker.pkg.github.com/${{ github.repository }}/app:${IMAGE_TAG} .
+        run: docker build -t tsakar/express-app:${IMAGE_TAG} .
 
       - name: Push to docker hub :tag
         if: success()
         uses: actions-hub/docker@master
         with:
-          args: push docker.pkg.github.com/${{ github.repository }}:${IMAGE_TAG}
+          args: push tsakar/express-app:${IMAGE_TAG}
