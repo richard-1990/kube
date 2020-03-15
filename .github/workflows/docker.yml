@@ -10,11 +10,20 @@ jobs:
     steps:
       - uses: actions/checkout@v1
 
-      - name: Login to github registry
+      - name: Tag latest
         uses: mr-smithers-excellent/docker-build-push@v2
         with:
           image: tsakar/express-app
           tag: latest
+          registry: docker.io
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Tag Github hash
+        uses: mr-smithers-excellent/docker-build-push@v2
+        with:
+          image: tsakar/express-app
+          tag: ${GITHUB_SHA::8}
           registry: docker.io
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
