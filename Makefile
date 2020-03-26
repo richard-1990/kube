@@ -19,7 +19,7 @@ build:
 ## BUILD AND DEPLOY WITH DOCKERHUB
 
 docker-build:
-	docker build -t $(IMAGENAME):$(VERSION) -t $(IMAGENAME):latest .
+	docker build . -t $(IMAGENAME):$(VERSION) -t $(IMAGENAME):latest
 
 docker-run: 
 	docker container run --publish :9000 --detach $(IMAGENAME):latest
