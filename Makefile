@@ -1,4 +1,4 @@
-include .env
+-include .env
 IMAGENAME=express-app
 DOCKERHUB=tsakar
 VERSION:= $(shell git rev-parse --short HEAD)
