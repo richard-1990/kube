@@ -12,5 +12,5 @@ spec:
         paths:
           - path: /
             backend:
-              serviceName: express-application
+              serviceName: express-service
               servicePort: 80

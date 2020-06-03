@@ -1,6 +1,9 @@
 -include .env
+export 
+
 IMAGENAME=express-app
 DOCKERHUB=tsakar
+NAMESPACE=development
 VERSION:= $(shell git rev-parse --short HEAD)
 
 
@@ -9,12 +12,16 @@ VERSION:= $(shell git rev-parse --short HEAD)
 deploy:  
 	eval $(minikube docker-env)
 	docker build -t $(IMAGENAME):$(VERSION) -t $(IMAGENAME):latest .
-	kubectl run express-application --image=$(IMAGENAME):latest --image-pull-policy=Never
+	kubectl run express-app --image=$(IMAGENAME):latest --image-pull-policy=always
 
 build: 
 	eval $(minikube docker-env)
 	docker build -t $(IMAGENAME):$(VERSION) -t $(IMAGENAME):latest .
 
+
+## Build a deployment template
+deployment-template:
+	npx envsub ./templates/deployment.yaml stdout > configs/deployment.yaml
 
 ## BUILD AND DEPLOY WITH DOCKERHUB
 
@@ -26,7 +33,8 @@ docker-run:
 
 docker-push:
 	docker build -t $(DOCKERHUB)/$(IMAGENAME):$(VERSION) -t $(DOCKERHUB)/$(IMAGENAME):latest .
-	docker push $(DOCKERHUB)/$(IMAGENAME):latest
+	docker push $(DOCKERHUB)/$(IMAGENAME):latest 
+	docker push $(DOCKERHUB)/$(IMAGENAME):$(VERSION) 
 
 docker-images:
 	docker images
@@ -42,14 +50,20 @@ master-minikube-up:
 	kubectl create secret generic -n development database --from-literal=MYSQL_USER=$(MYSQL_USER) --from-literal=MYSQL_PASSWORD=$(MYSQL_PASSWORD)
 	kubectl apply -f configs/deployment.yaml 
 	kubectl apply -f configs/services.yaml 
-	kubectl apply -f configs/ingress.yaml 
+	kubectl apply -f configs/nginx-ingress.yaml 
 	kubectl get ingress
 
-rollout:
-	kubectl rollout restart deployments/express-application 
 
-master-minikube-down:
-	minikube delete
+## Kubernetes check for latest version (Latest)
+rollout:
+	kubectl rollout restart deployments/express-app 
+
+
+build-template: 
+	kubectl create namespace development --dry-run=client -o yaml > configs/namespace.yaml
+	kubectl create deployment express-app --image=$(DOCKERHUB)/$(IMAGENAME):latest --dry-run=client -o yaml > configs/deployment.yaml
+
+
 
 kubernetes-up:
 	kubectl apply -f configs/namespace.yaml 
@@ -62,9 +76,13 @@ kubernetes-up:
 
 
 secrets:
-	kubectl create secret generic -n development database --from-literal=MYSQL_USER=$(MYSQL_USER) --from-literal=MYSQL_PASSWORD=$(MYSQL_PASSWORD)
+	kubectl create secret generic -n development database --from-literal=MYSQL_USER=$(MYSQL_USER) --from-literal=MYSQL_PASSWORD=$(MYSQL_PASSWORD) --dry-run=client -o yaml
 
 
 version:
 	@echo $(VERSION)
+
+
+master-minikube-down:
+	minikube delete
 
