@@ -19,8 +19,8 @@ spec:
           name: ${IMAGENAME}
           resources:
             requests:
-              cpu: "0.5"
+              cpu: 100m
               memory: 128Mi
             limits:
-              cpu: "1"
+              cpu: 100m
               memory: 256Mi
