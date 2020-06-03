@@ -20,7 +20,7 @@ build:
 
 
 ## Build a deployment template
-deployment-template:
+build-deployment-template:
 	npx envsub ./templates/deployment.yaml stdout > configs/deployment.yaml
 
 ## BUILD AND DEPLOY WITH DOCKERHUB
@@ -34,7 +34,9 @@ docker-run:
 docker-push:
 	docker build -t $(DOCKERHUB)/$(IMAGENAME):$(VERSION) -t $(DOCKERHUB)/$(IMAGENAME):latest .
 	docker push $(DOCKERHUB)/$(IMAGENAME):latest 
-	docker push $(DOCKERHUB)/$(IMAGENAME):$(VERSION) 
+	docker push $(DOCKERHUB)/$(IMAGENAME):$(VERSION)
+	$(MAKE) build-deployment-template
+
 
 docker-images:
 	docker images
