@@ -1,8 +1,8 @@
 -include .env
 export 
 
-IMAGENAME=express-app
-DOCKERHUB=tsakar
+IMAGENAME=workshop
+DOCKERHUB=richardpricelsm
 NAMESPACE=development
 VERSION:= $(shell git rev-parse --short HEAD)
 
@@ -21,7 +21,7 @@ build:
 
 ## Build a deployment template
 build-deployment-template:
-	npx envsub ./templates/deployment.yaml stdout > configs/deployment.yaml
+	npx envsub ./templates/deployment.yaml stdout > manifests/deployment.yaml
 
 ## BUILD AND DEPLOY WITH DOCKERHUB
 
@@ -31,7 +31,7 @@ docker-build:
 docker-run: 
 	docker container run --publish :9000 --detach $(IMAGENAME):latest
 
-docker-push:
+docker-push-template:
 	docker build -t $(DOCKERHUB)/$(IMAGENAME):$(VERSION) -t $(DOCKERHUB)/$(IMAGENAME):latest .
 	docker push $(DOCKERHUB)/$(IMAGENAME):latest 
 	docker push $(DOCKERHUB)/$(IMAGENAME):$(VERSION)
@@ -47,38 +47,38 @@ docker-containers:
 master-minikube-up:
 	minikube start
 	minikube addons enable ingress
-	kubectl apply -f configs/namespace.yaml 
-	kubectl config set-context --current --namespace=development
-	kubectl create secret generic -n development database --from-literal=MYSQL_USER=$(MYSQL_USER) --from-literal=MYSQL_PASSWORD=$(MYSQL_PASSWORD)
-	kubectl apply -f configs/deployment.yaml 
-	kubectl apply -f configs/services.yaml 
-	kubectl apply -f configs/nginx-ingress.yaml 
+	kubectl apply -f manifests/namespace.yaml
+	kubectl config set-context --current --namespace=$(NAMESPACE)
+	kubectl create secret generic -n $(NAMESPACE) database --from-literal=MYSQL_USER=$(MYSQL_USER) --from-literal=MYSQL_PASSWORD=$(MYSQL_PASSWORD)
+	kubectl apply -f manifests/deployment.yaml
+	kubectl apply -f manifests/services.yaml
+	kubectl apply -f manifests/nginx-ingress.yaml
 	kubectl get ingress
 
 
 ## Kubernetes check for latest version (Latest)
 rollout:
-	kubectl rollout restart deployments/express-app 
+	kubectl rollout restart deployments/express-app
 
 
-build-template: 
-	kubectl create namespace development --dry-run=client -o yaml > configs/namespace.yaml
-	kubectl create deployment express-app --image=$(DOCKERHUB)/$(IMAGENAME):latest --dry-run=client -o yaml > configs/deployment.yaml
+build-template:
+	kubectl create namespace $(NAMESPACE) --dry-run=client -o yaml > manifests/namespace.yaml
+	kubectl create deployment express-app --image=$(DOCKERHUB)/$(IMAGENAME):latest --dry-run=client -o yaml > manifests/deployment.yaml
 
 
 
 kubernetes-up:
-	kubectl apply -f configs/namespace.yaml 
-	kubectl config set-context --current --namespace=development
-	kubectl create secret generic -n development database --from-literal=MYSQL_USER=$(MYSQL_USER) --from-literal=MYSQL_PASSWORD=$(MYSQL_PASSWORD)
-	kubectl apply -f configs/deployment.yaml 
-	kubectl apply -f configs/services.yaml 
-	kubectl apply -f configs/nginx-ingress.yaml 
+	kubectl apply -f manifests/namespace.yaml 
+	kubectl config set-context --current --namespace=$(NAMESPACE)
+	kubectl create secret generic -n $(NAMESPACE) database --from-literal=MYSQL_USER=$(MYSQL_USER) --from-literal=MYSQL_PASSWORD=$(MYSQL_PASSWORD)
+	kubectl apply -f manifests/deployment.yaml 
+	kubectl apply -f manifests/services.yaml 
+	kubectl apply -f manifests/nginx-ingress.yaml 
 	kubectl get ingress
 
 
-secrets:
-	kubectl create secret generic -n development database --from-literal=MYSQL_USER=$(MYSQL_USER) --from-literal=MYSQL_PASSWORD=$(MYSQL_PASSWORD) --dry-run=client -o yaml
+generate-secrets:
+	kubectl create secret generic -n $(NAMESPACE) database --from-literal=MYSQL_USER=$(MYSQL_USER) --from-literal=MYSQL_PASSWORD=$(MYSQL_PASSWORD)
 
 
 version:
@@ -88,3 +88,15 @@ version:
 master-minikube-down:
 	minikube delete
 
+
+
+
+# Generators
+
+generate-namespace:
+	kubectl create namespace $(NAMESPACE) --dry-run=client -o yaml > manifests/namespace.yaml
+
+generate-deployment-latest:
+	kubectl create deployment $(IMAGENAME) --image=$(DOCKERHUB)/$(IMAGENAME):latest --namespace=$(NAMESPACE) --dry-run=client -o yaml > manifests/deployment.yaml
+
+generate-services:
